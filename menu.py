@@ -1,11 +1,37 @@
 import tkinter as tk
+from calculator import Calculator
+import objects
 
 class Menu:
+    # Store collected data
+    point_weights = []
+    point_distances = []
+
+    distributed_weights = []
+    distributed_distances = []
+
+    point_load_objects = []
+    distributed_load_objects = []
+
+    weight_unit = "#"
+    distance_unit = "feet"
+
+    def point_load_saver(self, weight, distance):
+        point_load = objects.PointLoad(weight.get(), distance.get())
+        self.point_load_objects.append(point_load)
+        root.quit()
+
+    def distributed_load_saver(self, weight, distance, width):
+        distributed_load = objects.DistributedLoad(weight.get(), distance.get(), width.get())
+        self.distributed_load_objects.append(distributed_load)
+        root.quit()
+
     def __init__(self, root):
         self.root = root
         self.root.title("Menu")
         self.current_frame = None
         self.main_menu()
+
 
     def main_menu(self):
         if self.current_frame:
@@ -63,39 +89,115 @@ class Menu:
         button = tk.Button(self.current_frame, text="Enter", command=handle_button_click)
         button.pack()
 
+    #Widgets-----------------------------------
+    def create_point_load_widgets(self, i, num_point_loads):
+        if self.current_frame:
+            self.current_frame.destroy()
+        self.current_frame = tk.Frame(self.root)
+        self.current_frame.pack()
+
+        #Ask for weight
+        label = tk.Label(self.current_frame, text=f"Weight of Point Load {i+1}:", font=("Helvetica", 14))
+        label.pack()
+        entry_weight = tk.Entry(self.current_frame, font=("Helvetica", 14))
+        entry_weight.pack()
+            
+        #Ask for distance
+        label2 = tk.Label(self.current_frame, text=f"Distance of Point Load {i+1} from pillar 'A':", font=("Helvetica", 14))
+        label2.pack()
+        entry_distance = tk.Entry(self.current_frame, font=("Helvetica", 14))
+        entry_distance.pack()
+
+        #Save data
+        button = tk.Button(self.current_frame, text="Enter", command=lambda weight=entry_weight, distance=entry_distance: self.point_load_saver(weight, distance))
+        button.pack()
+
+    def create_dist_load_widgets(self, i, num_distributed_loads):
+        if self.current_frame:
+            self.current_frame.destroy()
+        self.current_frame = tk.Frame(self.root)
+        self.current_frame.pack()
+
+        #Ask for width
+        label = tk.Label(self.current_frame, text=f"Width of Distributed Load {i+1}:", font=("Helvetica", 14))
+        label.pack()
+        entry_width = tk.Entry(self.current_frame, font=("Helvetica", 14))
+        entry_width.pack()
+            
+        #Ask for load amount
+        label2 = tk.Label(self.current_frame, text=f"Load amount of Distributed Load {i+1}:", font=("Helvetica", 14))
+        label2.pack()
+        entry_weight = tk.Entry(self.current_frame, font=("Helvetica", 14))
+        entry_weight.pack()
+            
+        #Ask for distance
+        label3 = tk.Label(self.current_frame, text=f"Distance of closest end of Distributed {i+1} from pillar 'A':", font=("Helvetica", 14))
+        label3.pack()
+        entry_distance = tk.Entry(self.current_frame, font=("Helvetica", 14))
+        entry_distance.pack()
+
+        #Save data
+        button = tk.Button(self.current_frame, text="Enter", command=lambda weight=entry_weight, distance=entry_distance, width=entry_width: self.distributed_load_saver(weight, distance, width))
+        button.pack()
+
+    #Menu 2 -------------------------------------
     def calculate_menu2(self, num_point_loads, num_distributed_loads):
         if self.current_frame:
             self.current_frame.destroy()
 
         self.current_frame = tk.Frame(self.root)
         self.current_frame.pack()
-
-        point_weights = []
-        distributed_weights = []
-
+        
         for i in range(num_point_loads):
-            label = tk.Label(self.current_frame, text=f"Point Load {i+1}:", font=("Helvetica", 14))
-            label.pack()
-            entry = tk.Entry(self.current_frame, font=("Helvetica", 14))
-            entry.insert(0, "0")
-            entry.pack()
-            point_weights.append(entry)
+            self.create_point_load_widgets(i, num_point_loads)
+            root.mainloop()
 
         for i in range(num_distributed_loads):
-            label = tk.Label(self.current_frame, text=f"Distributed {i+1}:", font=("Helvetica", 14))
-            label.pack()
-            entry = tk.Entry(self.current_frame, font=("Helvetica", 14))
-            entry.insert(0, "0")
-            entry.pack()
-            distributed_weights.append(entry)
+            self.create_dist_load_widgets(i, num_distributed_loads)
+            root.mainloop()
+            
 
-        def print_numbers():
-            for entry in point_weights:
-                print(entry.get())
-            for entry in distributed_weights:
-                print(entry.get())
+        for point_load in self.point_load_objects:
+            weight = point_load.weight
+            self.point_weights.append(weight)
 
-        button = tk.Button(self.current_frame, text="Enter", command=print_numbers)
+            distance = point_load.distance
+            self.point_distances.append(distance)
+
+        for distrubuted_load in self.distributed_load_objects:
+            weight = distrubuted_load.overall_weight
+            self.distributed_weights.append(weight)
+
+            distance = distrubuted_load.distance_point_eq
+            self.distributed_distances.append(distance)
+            
+        if self.current_frame:
+            self.current_frame.destroy()
+        self.current_frame = tk.Frame(self.root)
+        self.current_frame.pack()
+
+        label4 = tk.Label(self.current_frame, text=f"Distance of pillar B from pillar 'A':", font=("Helvetica", 16))
+        label4.pack()
+        entry_ab_distance = tk.Entry(self.current_frame, font=("Helvetica", 16))
+        entry_ab_distance.insert(0, "0")
+        entry_ab_distance.pack()
+
+
+        def print_conclusion():
+            # Store data
+            ab_distance = float(entry_ab_distance.get())
+            
+            # Call support_reactions method
+            all_weights = self.point_weights + self.distributed_weights
+            all_distances = self.point_distances + self.distributed_distances
+            support_A, support_B, end_line = Calculator.support_reactions("#", "feet", all_weights, all_distances, ab_distance)
+
+            print(end_line)
+            #conclusion_label = tk.Label(self.current_frame, text=end_line, font=("Helvetica", 16))
+            #conclusion_label.pack()
+
+        #Submit button
+        button = tk.Button(self.current_frame, text="Calculate", command=print_conclusion)
         button.pack()
 
     def change_menu(self):
