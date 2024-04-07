@@ -125,7 +125,7 @@ class Menu:
         entry_width.pack()
             
         #Ask for load amount
-        label2 = tk.Label(self.current_frame, text=f"Load amount of Distributed Load {i+1}:", font=("Helvetica", 14))
+        label2 = tk.Label(self.current_frame, text=f"Load amount of Distributed Load {i+1} ({self.weight_unit}/{self.distance_unit}):", font=("Helvetica", 14))
         label2.pack()
         entry_weight = tk.Entry(self.current_frame, font=("Helvetica", 14))
         entry_weight.pack()
@@ -190,11 +190,10 @@ class Menu:
             # Call support_reactions method
             all_weights = self.point_weights + self.distributed_weights
             all_distances = self.point_distances + self.distributed_distances
-            support_A, support_B, end_line = Calculator.support_reactions("#", "feet", all_weights, all_distances, ab_distance)
+            support_A, support_B, end_line = Calculator.support_reactions(self.weight_unit, self.distance_unit, all_weights, all_distances, ab_distance)
 
-            print(end_line)
-            #conclusion_label = tk.Label(self.current_frame, text=end_line, font=("Helvetica", 16))
-            #conclusion_label.pack()
+            conclusion_label = tk.Label(self.current_frame, text=end_line, font=("Helvetica", 16))
+            conclusion_label.pack()
 
         #Submit button
         button = tk.Button(self.current_frame, text="Calculate", command=print_conclusion)

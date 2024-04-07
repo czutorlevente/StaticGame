@@ -19,11 +19,10 @@ class Calculator:
         support_B = (weight_moments / ab_dist)
         support_A = all_weights - support_B
 
-        end_line_1 = f"\nMoments on A = {moments_A} = 0. So based on that By = {support_B} {weight_unit}"
-        end_line_2 = f"and because A(y) + B(y) = sum of all weights ({all_weights} {weight_unit}), A(y) = {support_A}"
+        end_line_1 = f"\nMoments on A = {moments_A} = 0. \nSo based on that By = {support_B}{weight_unit} "
+        end_line_2 = f"and because A(y) + B(y) = sum of all weights ({all_weights} {weight_unit}), \nA(y) = {support_A}"
         end_line_3 = f"\nSo the support reaction on pillar A is {support_A} {weight_unit} and on B is {support_B} {weight_unit}"
         end_line = end_line_1 + end_line_2 + end_line_3
-        print(end_line)
 
         return support_A, support_B, end_line
     
