@@ -88,5 +88,3 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
 
     pygame.quit()
 
-# Example usage:
-#draw_screen(10, 5, -7.5, 8.3, 3, [PointLoad(5, 2)], [DistributedLoad(2, 1, 4)], "hi", "#", "feet")

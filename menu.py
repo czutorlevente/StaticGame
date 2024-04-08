@@ -193,9 +193,13 @@ class Menu:
             all_distances = self.point_distances + self.distributed_distances
             support_A, support_B, end_line = Calculator.support_reactions(self.weight_unit, self.distance_unit, all_weights, all_distances, ab_distance)
 
+            #Calculate width of bridge:
+            overall_width, A_location = Calculator.calculate_width(self.point_load_objects, self.distributed_load_objects, ab_distance)
+            print(f"Overall width: {overall_width} {self.distance_unit}")
+            print(f"A location: {A_location}")
             #conclusion_label = tk.Label(self.current_frame, text=end_line, font=("Helvetica", 16))
             #conclusion_label.pack()
-            draw.draw_screen(10, ab_distance, support_A, support_B, 0, self.point_load_objects, self.distributed_load_objects, end_line, self.weight_unit, self.distance_unit)
+            draw.draw_screen(overall_width, ab_distance, support_A, support_B, A_location, self.point_load_objects, self.distributed_load_objects, end_line, self.weight_unit, self.distance_unit)
 
         #Submit button
         button = tk.Button(self.current_frame, text="Calculate", command=print_conclusion)
