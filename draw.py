@@ -29,7 +29,14 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
         distributed_x = AL * unit_1 + screen_width * 0.1 + dist_load.distance * unit_1
         distributed_y = line_y - 20
         dist_width = dist_load.width * unit_1
-        pygame.draw.line(screen, (200, 70, 0), (distributed_x, distributed_y), (distributed_x + dist_width, distributed_y), 30)
+        dist_weight = dist_load.weight
+        if dist_weight % 1 == 0:
+            dist_weight = int(dist_weight)
+        pygame.draw.line(screen, (200, 180, 150), (distributed_x, distributed_y), (distributed_x + dist_width, distributed_y), 30)
+        font = pygame.font.Font(None, 24)
+        text_surface = font.render(str(dist_weight) + " " + weight_unit + "/" + length_unit, True, (0, 0, 0))
+        text_rect = text_surface.get_rect(center=(distributed_x + dist_width / 2, distributed_y))
+        screen.blit(text_surface, text_rect)
 
     # Draw arrow for FA
     arrow_color = (255, 0, 0)
