@@ -59,6 +59,8 @@ class Calculator:
             elif distributed_load.distance < 0:
                 if dist_distance > negative_d_d:
                     negative_d_d = dist_distance
+            if distributed_load.distance + distributed_load.width > positive_d_d:
+                positive_d_d = distributed_load.distance + distributed_load.width
         
         if positive_d_d > positive_distance:
             positive_distance = positive_d_d

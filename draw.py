@@ -6,13 +6,13 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     pygame.init()
 
     # Set up screen
-    screen_width = 900
+    screen_width = 1200
     screen_height = 750
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("Load Visualization")
 
     # Calculate unit_1
-    unit_1 = 0.8 * screen_width / W
+    unit_1 = 0.7 * screen_width / W
 
     # Draw white screen
     screen.fill((255, 255, 255))
@@ -40,7 +40,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
 
     # Draw distributed loads
     for dist_load in DL:
-        distributed_x = AL * unit_1 + screen_width * 0.1 + dist_load.distance * unit_1
+        distributed_x = AL * unit_1 + ((screen_width - line_length) / 2) + dist_load.distance * unit_1
         distributed_y = line_y - 20
         dist_width = dist_load.width * unit_1
         dist_weight = dist_load.weight
@@ -67,7 +67,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     arrow_color = (255, 0, 0)
     arrow_height = 50
     arrow_width = 20
-    arrow_x = AL * unit_1 + (screen_width * 0.1)
+    arrow_x = AL * unit_1 + ((screen_width - line_length) / 2)
 
     # Add to point list
     all_points.append(["P", arrow_x, -FA])
@@ -94,7 +94,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
 
     
     # Draw longer text at the top of the screen
-    font_m = pygame.font.Font(None, 20)  # Define font
+    font_m = pygame.font.Font(None, 26)  # Define font
     text = message  # Your longer text here
     lines = text.split('\n')  # Split text into lines
     line_height = font_m.get_linesize()  # Get height of each line
@@ -136,7 +136,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
         return (item[1], 0 if item[0] in ["D1", "D2"] else 1)
     
     all_points = sorted(all_points, key=point_list_sort)
-    
+    moment_points = all_points
 
     # Draw shear
     slope = 0
@@ -149,7 +149,10 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
             # Write distance
             if distance_between != 0:
                 font_dist = pygame.font.Font(None, 20)
-                text_surface_load = font_dist.render((str(distance_between) + " " + length_unit), True, (0, 0, 255))
+                write_between = round(distance_between, 2)
+                if write_between % 1 == 0:
+                    write_between = int(write_between)
+                text_surface_load = font_dist.render((str(write_between) + " " + length_unit), True, (0, 0, 255))
                 text_rect_load = text_surface_load.get_rect(center=(start_x_v + text_location, line_y + 13))
                 screen.blit(text_surface_load, text_rect_load)
 
@@ -163,6 +166,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
             pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (all_points[i + 1][1], start_y_v + distance_between*slope*unit_2), 3)
             start_x_v = all_points[i + 1][1]
             start_y_v = start_y_v + distance_between*slope*unit_2
+
         if all_points[i][0] == "P":
             if i < len(all_points) - 1:
                 height = all_points[i][2]
@@ -175,7 +179,13 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
                 height = all_points[i][2]
                 pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (start_x_v, start_y_v + (height*unit_2)), 3)
 
-
+    # Draw moment
+    '''
+    slope = 0
+    start_x_m = all_points[0][1]
+    start_y_m = line_3_y
+    for i in range(len(all_points)):
+    '''
 
     # Update the display
     pygame.display.flip()
