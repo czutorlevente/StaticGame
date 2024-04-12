@@ -143,11 +143,23 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     start_x_v = all_points[0][1]
     start_y_v = line_2_y
     for i in range(len(all_points)):
+        if i < len(all_points) - 1:
+            distance_between = (all_points[i + 1][1] - all_points[i][1]) / unit_1
+            text_location = (all_points[i + 1][1] - all_points[i][1]) / 2
+            # Write distance
+            if distance_between != 0:
+                font_dist = pygame.font.Font(None, 20)
+                text_surface_load = font_dist.render((str(distance_between) + " " + length_unit), True, (0, 0, 255))
+                text_rect_load = text_surface_load.get_rect(center=(start_x_v + text_location, line_y + 13))
+                screen.blit(text_surface_load, text_rect_load)
+
         if all_points[i][0] == "D2":
             slope = 0
+            if i < len(all_points) - 1:
+                pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (all_points[i + 1][1], start_y_v), 3)
+                start_x_v = all_points[i + 1][1]
         if all_points[i][0] == "D1":
             slope = all_points[i][2]
-            distance_between = (all_points[i + 1][1] - all_points[i][1]) / unit_1
             pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (all_points[i + 1][1], start_y_v + distance_between*slope*unit_2), 3)
             start_x_v = all_points[i + 1][1]
             start_y_v = start_y_v + distance_between*slope*unit_2
@@ -156,7 +168,6 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
                 height = all_points[i][2]
                 print(f"Height: {height}")
                 pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (start_x_v, start_y_v + (height*unit_2)), 3)
-                distance_between = (all_points[i + 1][1] - all_points[i][1]) / unit_1
                 pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v + (height*unit_2)), (all_points[i + 1][1], start_y_v + height*unit_2 + distance_between*slope*unit_2), 3)
                 start_x_v = all_points[i + 1][1]
                 start_y_v = start_y_v + height*unit_2 + distance_between*slope*unit_2
