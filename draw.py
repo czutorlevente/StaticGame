@@ -128,8 +128,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
 
     # Vertical scale final setup:
     unit_2 = (screen_height/7.5) / largest_vertical_value
-    print(f"Unit_2: {unit_2}")
-    print(f"Largest vertical value: {largest_vertical_value}")
+    
 
     def point_list_sort(item):
         # Sort by the second element (smaller_list[1])
@@ -137,7 +136,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
         return (item[1], 0 if item[0] in ["D1", "D2"] else 1)
     
     all_points = sorted(all_points, key=point_list_sort)
-    print(all_points)
+    
 
     # Draw shear
     slope = 0
@@ -147,15 +146,20 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
         if all_points[i][0] == "D2":
             slope = 0
         if all_points[i][0] == "D1":
-            print("D1")
+            slope = all_points[i][2]
+            distance_between = (all_points[i + 1][1] - all_points[i][1]) / unit_1
+            pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (all_points[i + 1][1], start_y_v + distance_between*slope*unit_2), 3)
+            start_x_v = all_points[i + 1][1]
+            start_y_v = start_y_v + distance_between*slope*unit_2
         if all_points[i][0] == "P":
             if i < len(all_points) - 1:
                 height = all_points[i][2]
+                print(f"Height: {height}")
                 pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (start_x_v, start_y_v + (height*unit_2)), 3)
                 distance_between = (all_points[i + 1][1] - all_points[i][1]) / unit_1
-                pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v + (height*unit_2)), (all_points[i + 1][1], start_y_v + height*unit_2 + distance_between*slope), 3)
+                pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v + (height*unit_2)), (all_points[i + 1][1], start_y_v + height*unit_2 + distance_between*slope*unit_2), 3)
                 start_x_v = all_points[i + 1][1]
-                start_y_v = start_y_v + height*unit_2 + distance_between*slope
+                start_y_v = start_y_v + height*unit_2 + distance_between*slope*unit_2
             else:
                 height = all_points[i][2]
                 pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (start_x_v, start_y_v + (height*unit_2)), 3)
