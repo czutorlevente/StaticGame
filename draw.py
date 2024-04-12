@@ -25,10 +25,10 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     pygame.draw.line(screen, (0, 0, 0), (line_x, line_y), (line_x + line_length, line_y), line_thickness)
 
     line_2_y = (screen_height / 7) * 4
-    pygame.draw.line(screen, (0, 0, 0), (line_x, line_2_y), (line_x + line_length, line_2_y), line_thickness)
+    pygame.draw.line(screen, (100, 100, 100), (line_x, line_2_y), (line_x + line_length, line_2_y), 3)
 
     line_3_y = (screen_height / 7) * 6
-    pygame.draw.line(screen, (0, 0, 0), (line_x, line_3_y), (line_x + line_length, line_3_y), line_thickness)
+    pygame.draw.line(screen, (100, 100, 100), (line_x, line_3_y), (line_x + line_length, line_3_y), 3)
 
     # Initialize list that will be a list of touples containing x values, force values, and slope (for distributed loads)
     all_points = []
@@ -76,9 +76,9 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     arrow_x = arrow_x - (arrow_width / 2)
     arrow_y = line_y + arrow_height
     pygame.draw.polygon(screen, arrow_color, [(arrow_x, arrow_y), (arrow_x + arrow_width / 2, arrow_y - arrow_height), (arrow_x + arrow_width, arrow_y)])
-    font = pygame.font.Font(None, 36)
+    font = pygame.font.Font(None, 26)
     text_surface = font.render(str(round(FA, 3)) + " " + weight_unit, True, (0, 0, 0))
-    text_rect = text_surface.get_rect(center=(arrow_x + arrow_width / 2, arrow_y + arrow_height / 2))
+    text_rect = text_surface.get_rect(center=(arrow_x + arrow_width / 2, arrow_y + arrow_height / 4))
     screen.blit(text_surface, text_rect)
 
     # Draw arrow for FB
@@ -86,7 +86,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     arrow_y_ab = line_y + arrow_height
     pygame.draw.polygon(screen, arrow_color, [(arrow_x_ab, arrow_y_ab), (arrow_x_ab + arrow_width / 2, arrow_y_ab - arrow_height), (arrow_x_ab + arrow_width, arrow_y_ab)])
     text_surface_ab = font.render(str(round(FB, 3)) + " " + weight_unit, True, (0, 0, 0))
-    text_rect_ab = text_surface_ab.get_rect(center=(arrow_x_ab + arrow_width / 2, arrow_y_ab + arrow_height / 2))
+    text_rect_ab = text_surface_ab.get_rect(center=(arrow_x_ab + arrow_width / 2, arrow_y_ab + arrow_height / 4))
     screen.blit(text_surface_ab, text_rect_ab)
 
     # Add B to point list
@@ -120,14 +120,16 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
                                                 (arrow_x_down + arrow_width / 2, arrow_y_down + arrow_height), 
                                                 (arrow_x_down + arrow_width, arrow_y_down)])
         text_surface_load = font.render((str(pl_weight) + " " + weight_unit), True, (0, 0, 0))
-        text_rect_load = text_surface_load.get_rect(center=(arrow_x_down + arrow_width / 2, arrow_y_down - arrow_height/2))
+        text_rect_load = text_surface_load.get_rect(center=(arrow_x_down + arrow_width / 2, arrow_y_down - arrow_height/4))
         screen.blit(text_surface_load, text_rect_load)
 
         # Add to point list
         all_points.append(["P", arrow_x_down + arrow_width / 2, pl_weight])
 
     # Vertical scale final setup:
-    unit_2 = (screen_height/7.1) / largest_vertical_value
+    unit_2 = (screen_height/7.5) / largest_vertical_value
+    print(f"Unit_2: {unit_2}")
+    print(f"Largest vertical value: {largest_vertical_value}")
 
     def point_list_sort(item):
         # Sort by the second element (smaller_list[1])
@@ -136,6 +138,29 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     
     all_points = sorted(all_points, key=point_list_sort)
     print(all_points)
+
+    # Draw shear
+    slope = 0
+    start_x_v = all_points[0][1]
+    start_y_v = line_2_y
+    for i in range(len(all_points)):
+        if all_points[i][0] == "D2":
+            slope = 0
+        if all_points[i][0] == "D1":
+            print("D1")
+        if all_points[i][0] == "P":
+            if i < len(all_points) - 1:
+                height = all_points[i][2]
+                pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (start_x_v, start_y_v + (height*unit_2)), 3)
+                distance_between = (all_points[i + 1][1] - all_points[i][1]) / unit_1
+                pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v + (height*unit_2)), (all_points[i + 1][1], start_y_v + height*unit_2 + distance_between*slope), 3)
+                start_x_v = all_points[i + 1][1]
+                start_y_v = start_y_v + height*unit_2 + distance_between*slope
+            else:
+                height = all_points[i][2]
+                pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (start_x_v, start_y_v + (height*unit_2)), 3)
+
+
 
     # Update the display
     pygame.display.flip()
