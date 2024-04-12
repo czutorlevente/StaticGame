@@ -48,7 +48,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
 
         # Add to point list
         all_points.append(["D1", distributed_x, dist_weight])
-        all_points.append(["D2", distributed_x + dist_width])
+        all_points.append(["D2", distributed_x + dist_width, "D2"])
 
         if overall_w > largest_vertical_value: # for vertical scale
             largest_vertical_value = overall_w
@@ -136,7 +136,9 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
         return (item[1], 0 if item[0] in ["D1", "D2"] else 1)
     
     all_points = sorted(all_points, key=point_list_sort)
-    moment_points = all_points
+
+    # Initialize a list of points used to calculate the drawing of a moment diagram
+    moment_points = []
 
     # Draw shear
     slope = 0
@@ -146,6 +148,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
         if i < len(all_points) - 1:
             distance_between = (all_points[i + 1][1] - all_points[i][1]) / unit_1
             text_location = (all_points[i + 1][1] - all_points[i][1]) / 2
+
             # Write distance
             if distance_between != 0:
                 font_dist = pygame.font.Font(None, 20)
@@ -160,10 +163,29 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
             slope = 0
             if i < len(all_points) - 1:
                 pygame.draw.line(screen, (255, 0, 255), (start_x_v, start_y_v), (all_points[i + 1][1], start_y_v), 3)
+
+                # Save points
+                moment_points.append([start_x_v, start_y_v])
+                moment_points.append([all_points[i + 1][1], start_y_v])
+
                 start_x_v = all_points[i + 1][1]
         if all_points[i][0] == "D1":
             slope = all_points[i][2]
             pygame.draw.line(screen, (255, 0, 255), (start_x_v, start_y_v), (all_points[i + 1][1], start_y_v + distance_between*slope*unit_2), 3)
+            
+            #Save points
+            moment_points.append([start_x_v, start_y_v])
+            moment_points.append([all_points[i + 1][1], start_y_v + distance_between*slope*unit_2])
+
+            # Calculate and add crossing point
+            if start_y_v > line_2_y > (start_y_v + distance_between*slope*unit_2) or start_y_v < line_2_y < (start_y_v + distance_between*slope*unit_2):
+                cross_distance = (line_2_y - start_y_v) / (slope * unit_2)
+                cross_x = (start_x_v + cross_distance*unit_1)
+                moment_points.append([cross_x, line_2_y])
+
+                # Test location:
+                pygame.draw.line(screen, (255, 0, 0), (cross_x, line_2_y + 10), (cross_x, line_2_y - 10), 2)
+            
             start_x_v = all_points[i + 1][1]
             start_y_v = start_y_v + distance_between*slope*unit_2
 
@@ -173,11 +195,61 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
                 print(f"Height: {height}")
                 pygame.draw.line(screen, (255, 0, 255), (start_x_v, start_y_v), (start_x_v, start_y_v + (height*unit_2)), 3)
                 pygame.draw.line(screen, (255, 0, 255), (start_x_v, start_y_v + (height*unit_2)), (all_points[i + 1][1], start_y_v + height*unit_2 + distance_between*slope*unit_2), 3)
+                
+                #Save points
+                moment_points.append([start_x_v, start_y_v])
+                moment_points.append([start_x_v, start_y_v + (height*unit_2)])
+                moment_points.append([all_points[i + 1][1], start_y_v + height*unit_2 + distance_between*slope*unit_2])
+
+                # Calculate and add crossing point
+                if (start_y_v + (height*unit_2)) > line_2_y > (start_y_v + (height*unit_2) + distance_between*slope*unit_2) or (start_y_v + (height*unit_2)) < line_2_y < (start_y_v + (height*unit_2) + distance_between*slope*unit_2):
+                    cross_distance = (line_2_y - (start_y_v + (height*unit_2))) / (slope * unit_2)
+                    cross_x = (start_x_v + cross_distance*unit_1)
+                    moment_points.append([cross_x, line_2_y])
+
+                    # Test location:
+                    pygame.draw.line(screen, (255, 0, 0), (cross_x, line_2_y + 10), (cross_x, line_2_y - 10), 2)
+                
                 start_x_v = all_points[i + 1][1]
                 start_y_v = start_y_v + height*unit_2 + distance_between*slope*unit_2
             else:
                 height = all_points[i][2]
                 pygame.draw.line(screen, (255, 0, 255), (start_x_v, start_y_v), (start_x_v, start_y_v + (height*unit_2)), 3)
+
+                #Save points
+                moment_points.append([start_x_v, start_y_v])
+                moment_points.append([start_x_v, start_y_v + (height*unit_2)])
+
+    # Calculate areas:
+    def polygon_area(vertices):
+        """
+        Calculate the area of a polygon using the shoelace formula.
+        vertices: List of tuples containing (x, y) coordinates of polygon vertices.
+        """
+        n = len(vertices)
+        area = 0
+        for i in range(n):
+            j = (i + 1) % n
+            area += vertices[i][0] * vertices[j][1]
+            area -= vertices[j][0] * vertices[i][1]
+        area = abs(area) / 2.0
+        return area
+    
+    # Organize list of points
+    def organize_vertices(vertices):
+        # Sort vertices based on x-coordinate
+        sorted_vertices = sorted(vertices, key=lambda vertex: vertex[0])
+        
+        # Remove duplicates
+        unique_vertices = []
+        for vertex in sorted_vertices:
+            if vertex not in unique_vertices:
+                unique_vertices.append(vertex)
+        
+        return unique_vertices
+
+    organized_vertices = organize_vertices(moment_points)
+    print(organized_vertices)
 
     # Draw moment
     '''
@@ -202,6 +274,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     text_surface = font_t.render("Moment:", True, (0, 0, 0))
     text_rect = text_surface.get_rect(center=((screen_width - line_length) / 4, line_3_y))
     screen.blit(text_surface, text_rect)
+
 
     # Update the display
     pygame.display.flip()
