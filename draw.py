@@ -159,11 +159,11 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
         if all_points[i][0] == "D2":
             slope = 0
             if i < len(all_points) - 1:
-                pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (all_points[i + 1][1], start_y_v), 3)
+                pygame.draw.line(screen, (255, 0, 255), (start_x_v, start_y_v), (all_points[i + 1][1], start_y_v), 3)
                 start_x_v = all_points[i + 1][1]
         if all_points[i][0] == "D1":
             slope = all_points[i][2]
-            pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (all_points[i + 1][1], start_y_v + distance_between*slope*unit_2), 3)
+            pygame.draw.line(screen, (255, 0, 255), (start_x_v, start_y_v), (all_points[i + 1][1], start_y_v + distance_between*slope*unit_2), 3)
             start_x_v = all_points[i + 1][1]
             start_y_v = start_y_v + distance_between*slope*unit_2
 
@@ -171,13 +171,13 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
             if i < len(all_points) - 1:
                 height = all_points[i][2]
                 print(f"Height: {height}")
-                pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (start_x_v, start_y_v + (height*unit_2)), 3)
-                pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v + (height*unit_2)), (all_points[i + 1][1], start_y_v + height*unit_2 + distance_between*slope*unit_2), 3)
+                pygame.draw.line(screen, (255, 0, 255), (start_x_v, start_y_v), (start_x_v, start_y_v + (height*unit_2)), 3)
+                pygame.draw.line(screen, (255, 0, 255), (start_x_v, start_y_v + (height*unit_2)), (all_points[i + 1][1], start_y_v + height*unit_2 + distance_between*slope*unit_2), 3)
                 start_x_v = all_points[i + 1][1]
                 start_y_v = start_y_v + height*unit_2 + distance_between*slope*unit_2
             else:
                 height = all_points[i][2]
-                pygame.draw.line(screen, (0, 255, 255), (start_x_v, start_y_v), (start_x_v, start_y_v + (height*unit_2)), 3)
+                pygame.draw.line(screen, (255, 0, 255), (start_x_v, start_y_v), (start_x_v, start_y_v + (height*unit_2)), 3)
 
     # Draw moment
     '''
@@ -186,6 +186,22 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     start_y_m = line_3_y
     for i in range(len(all_points)):
     '''
+
+    # Write titles
+    font_t = pygame.font.Font(None, 30)
+    text_surface = font_t.render("Forces:", True, (0, 0, 0))
+    text_rect = text_surface.get_rect(center=((screen_width - line_length) / 4, line_y))
+    screen.blit(text_surface, text_rect)
+
+    font_t = pygame.font.Font(None, 30)
+    text_surface = font_t.render("Shear:", True, (0, 0, 0))
+    text_rect = text_surface.get_rect(center=((screen_width - line_length) / 4, line_2_y))
+    screen.blit(text_surface, text_rect)
+
+    font_t = pygame.font.Font(None, 30)
+    text_surface = font_t.render("Moment:", True, (0, 0, 0))
+    text_rect = text_surface.get_rect(center=((screen_width - line_length) / 4, line_3_y))
+    screen.blit(text_surface, text_rect)
 
     # Update the display
     pygame.display.flip()
