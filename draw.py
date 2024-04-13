@@ -1,5 +1,6 @@
 import pygame
 import math
+import drawing_calculator
 
 def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     # Initialize Pygame
@@ -12,7 +13,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     pygame.display.set_caption("Load Visualization")
 
     # Calculate unit_1
-    unit_1 = 0.7 * screen_width / W
+    unit_1 = 0.6 * screen_width / W
 
     # Draw white screen
     screen.fill((255, 255, 255))
@@ -276,15 +277,29 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     print(f"Removed element: {removed_point}")
     print(polygons)
 
+    # Initialize V max and M max:
+    v_max = 0
+    positive_V_max = 0
+    negative_v_max = 0
+    m_max = 0
+
     # Calculate polygon areas:
     for polygon in polygons:
         area = polygon_area(polygon)
         area = round(area / (unit_1 * unit_2), 2)
-        print(f"Area: {area}")
+
+        #Calculate M max
+        if area > m_max:
+            m_max = area
+
         for point in polygon:
             x = point[0]
             y = point[1]
+
+            # Show points
             pygame.draw.line(screen, (0, 33, 175), (x, y), (x, y - 5), 3)
+
+            # Display height of points
             displayed_height = round(-((y - line_2_y) / unit_2), 2)
             if displayed_height > 0:
                 text_surface_load = font_dist.render((str(displayed_height) + " " + weight_unit), True, (0, 0, 255))
@@ -295,6 +310,27 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
                 text_rect_load = text_surface_load.get_rect(center=(x, y + 13))
                 screen.blit(text_surface_load, text_rect_load)
 
+            # Calculate V max:
+            if displayed_height > positive_V_max:
+                positive_V_max = displayed_height
+            if displayed_height < negative_v_max:
+                negative_v_max = displayed_height
+
+            if abs(negative_v_max) != positive_V_max:
+                v_max = positive_V_max
+                if v_max < abs(negative_v_max):
+                    v_max = str(negative_v_max)
+            else: 
+                v_max = "±" + str(positive_V_max)
+        
+        # Calculate centroid and display area of shape there:
+        center_location = drawing_calculator.D_Calculator.polygon_centroid(polygon)
+        center_x = center_location[0]
+        center_y = center_location[1]
+        text_surface_load = font_dist.render("Area: " + (str(area)), True, (0, 180, 0))
+        text_rect_load = text_surface_load.get_rect(center=(center_x, center_y))
+        screen.blit(text_surface_load, text_rect_load)
+
     # Draw moment
     '''
     slope = 0
@@ -304,28 +340,28 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     '''
 
     # Write titles
-    font_t = pygame.font.Font(None, 30)
-    text_surface = font_t.render("Forces:", True, (0, 0, 0))
+    font_t = pygame.font.Font(None, 35)
+    text_surface = font_t.render("FORCES:", True, (0, 0, 0))
     text_rect = text_surface.get_rect(center=((screen_width - line_length) / 4, line_y))
     screen.blit(text_surface, text_rect)
 
-    text_surface = font_t.render("Shear:", True, (0, 0, 0))
+    text_surface = font_t.render("SHEAR:", True, (0, 0, 0))
     text_rect = text_surface.get_rect(center=((screen_width - line_length) / 4, line_2_y))
     screen.blit(text_surface, text_rect)
 
-    text_surface = font_t.render("Moment:", True, (0, 0, 0))
+    text_surface = font_t.render("MOMENT:", True, (0, 0, 0))
     text_rect = text_surface.get_rect(center=((screen_width - line_length) / 4, line_3_y))
     screen.blit(text_surface, text_rect)
 
     # Write V max
     font_e = pygame.font.Font(None, 25)
-    text_surface = font_e.render("V max:", True, (0, 0, 0))
-    text_rect = text_surface.get_rect(center=((screen_width - 1.5 * (screen_width - line_length) / 4), line_2_y))
+    text_surface = font_e.render("V max: " + v_max + " " + weight_unit + "-" + length_unit, True, (0, 0, 0))
+    text_rect = text_surface.get_rect(center=((screen_width - (screen_width - line_length) / 4), line_2_y))
     screen.blit(text_surface, text_rect)
 
     # Write M max
-    text_surface = font_e.render("M max:", True, (0, 0, 0))
-    text_rect = text_surface.get_rect(center=((screen_width - 1.5 * (screen_width - line_length) / 4), line_3_y))
+    text_surface = font_e.render("M max: " + str(m_max) + " " + weight_unit + "-" + length_unit + "^2", True, (0, 0, 0))
+    text_rect = text_surface.get_rect(center=((screen_width - (screen_width - line_length) / 4), line_3_y))
     screen.blit(text_surface, text_rect)
 
 
