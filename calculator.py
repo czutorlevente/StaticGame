@@ -52,7 +52,7 @@ class Calculator:
         negative_d_d = 0
 
         for distributed_load in distributed_loads:
-            dist_distance = abs(distributed_load.distance) + distributed_load.width
+            dist_distance = distributed_load.distance + distributed_load.width
             if distributed_load.distance > 0:
                 if dist_distance > positive_d_d:
                     positive_d_d = dist_distance
