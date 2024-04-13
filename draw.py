@@ -182,9 +182,6 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
                 cross_distance = (line_2_y - start_y_v) / (slope * unit_2)
                 cross_x = (start_x_v + cross_distance*unit_1)
                 moment_points.append([cross_x, line_2_y])
-
-                # Test location:
-                pygame.draw.line(screen, (255, 0, 0), (cross_x, line_2_y + 10), (cross_x, line_2_y - 10), 2)
             
             start_x_v = all_points[i + 1][1]
             start_y_v = start_y_v + distance_between*slope*unit_2
@@ -198,17 +195,17 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
                 
                 #Save points
                 moment_points.append([start_x_v, start_y_v])
-                moment_points.append([start_x_v, start_y_v + (height*unit_2)])
-                moment_points.append([all_points[i + 1][1], start_y_v + height*unit_2 + distance_between*slope*unit_2])
 
-                # Calculate and add crossing point
-                if (start_y_v + (height*unit_2)) > line_2_y > (start_y_v + (height*unit_2) + distance_between*slope*unit_2) or (start_y_v + (height*unit_2)) < line_2_y < (start_y_v + (height*unit_2) + distance_between*slope*unit_2):
-                    cross_distance = (line_2_y - (start_y_v + (height*unit_2))) / (slope * unit_2)
+                if start_y_v > line_2_y > (start_y_v + (height*unit_2)) or start_y_v < line_2_y < (start_y_v + (height*unit_2)):
+                    moment_points.append([start_x_v, line_2_y])
+                moment_points.append([start_x_v, start_y_v + (height*unit_2)])
+
+                if (start_y_v + (height*unit_2)) > line_2_y > (start_y_v + height*unit_2 + distance_between*slope*unit_2) or (start_y_v + (height*unit_2)) < line_2_y < (start_y_v + height*unit_2 + distance_between*slope*unit_2):
+                    cross_distance = (line_2_y - (start_y_v  + height*unit_2)) / (slope * unit_2)
                     cross_x = (start_x_v + cross_distance*unit_1)
                     moment_points.append([cross_x, line_2_y])
 
-                    # Test location:
-                    pygame.draw.line(screen, (255, 0, 0), (cross_x, line_2_y + 10), (cross_x, line_2_y - 10), 2)
+                moment_points.append([all_points[i + 1][1], start_y_v + height*unit_2 + distance_between*slope*unit_2])
                 
                 start_x_v = all_points[i + 1][1]
                 start_y_v = start_y_v + height*unit_2 + distance_between*slope*unit_2
@@ -249,7 +246,45 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
         return unique_vertices
 
     organized_vertices = organize_vertices(moment_points)
-    print(organized_vertices)
+    
+    # Create polygons
+    def split_vertices_by_y(vertices, line_2_y):
+        # Initialize lists to hold divided vertices and split indices
+        divided_vertices = []
+        split_indices = []
+        
+        # Find the indices where y-value equals line_2_y
+        for i, vertex in enumerate(vertices):
+            if vertex[1] == line_2_y:
+                split_indices.append(i)
+        
+        # If no split indices are found, return the original list of vertices
+        if not split_indices:
+            return [vertices]
+        
+        # Start creating sublists from the split indices
+        start_index = 0
+        for split_index in split_indices:
+            sublist = vertices[start_index:split_index + 1]
+            divided_vertices.append(sublist)
+            start_index = split_index
+        
+        return divided_vertices
+    
+    polygons = split_vertices_by_y(organized_vertices, line_2_y)
+    removed_point = polygons.pop(0)
+    print(f"Removed element: {removed_point}")
+    print(polygons)
+
+    # Calculate polygon areas:
+    for polygon in polygons:
+        area = polygon_area(polygon)
+        area = round(area / (unit_1 * unit_2), 2)
+        print(f"Area: {area}")
+        for point in polygon:
+            x = point[0]
+            y = point[1]
+            pygame.draw.line(screen, (0, 33, 175), (x, y), (x, y - 5), 3)
 
     # Draw moment
     '''
