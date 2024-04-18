@@ -38,3 +38,32 @@ class D_Calculator:
         cy /= (6 * signed_area)
         
         return (cx, cy)
+    
+    # Calculate sub areas and slope for the creation of the moment diagram:
+    def moment_creator(vertices, line_2_y, line_3_y):
+        final_moment_points = []
+        last_moment = 0
+        for i in range(len(vertices)):
+            final_moment_points_1 = []
+            if i != 0:
+                if vertices[i][0] != vertices[i-1][0]: # if x is not the same as x for the one before
+                    if vertices[i][1] == vertices[i-1][1]: # if y is the same as y for the one before
+                        x_coordinates = [vertices[i-1][0] + (vertices[i][0] - vertices[i-1][0]) * j / (200 - 1) for j in range(200)]
+                        slope = 0
+                        intercept = vertices[i-1][1] - line_2_y
+                        moment_values = [(slope * (x - x_coordinates[0])**2 / 2 + intercept * (x - x_coordinates[0]) + last_moment) for x in x_coordinates]
+                        final_moment_points_1 = [x_coordinates, moment_values]
+                    else: # if it is sloping downward
+                        x_coordinates = [vertices[i-1][0] + (vertices[i][0] - vertices[i-1][0]) * j / (200 - 1) for j in range(200)]
+                        slope = (vertices[i][1] - vertices[i-1][1]) / (vertices[i][0] - vertices[i-1][0])
+                        intercept = vertices[i-1][1] - line_2_y
+                        moment_values = [(slope * (x - x_coordinates[0])**2 / 2 + intercept * (x - x_coordinates[0]) + last_moment) for x in x_coordinates]
+                        final_moment_points_1 = [x_coordinates, moment_values]
+                    last_moment = moment_values[-1]
+            final_moment_points.append(final_moment_points_1)
+        return final_moment_points
+        
+                        
+
+
+

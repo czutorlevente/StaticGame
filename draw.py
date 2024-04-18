@@ -277,11 +277,12 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     print(f"Removed element: {removed_point}")
     print(polygons)
 
-    # Initialize V max and M max:
+    # Initialize V max, M max, and unit_3:
     v_max = 0
     positive_V_max = 0
     negative_v_max = 0
     m_max = 0
+    unit_3 = 0 # verticale scale for moment diagram
 
     # Calculate polygon areas:
     for polygon in polygons:
@@ -319,8 +320,16 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
             if abs(negative_v_max) != positive_V_max:
                 v_max = positive_V_max
                 if v_max < abs(negative_v_max):
+                    v_max = negative_v_max
+
+                    # Vertical scale for moment setup:
+                    unit_3 = (screen_height/7.5) / m_max
+
                     v_max = str(negative_v_max)
-            else: 
+            else:
+                # Vertical scale for moment setup:
+                unit_3 = (screen_height/7.5) / m_max
+
                 v_max = "±" + str(positive_V_max)
         
         # Calculate centroid and display area of shape there:
@@ -332,12 +341,19 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
         screen.blit(text_surface_load, text_rect_load)
 
     # Draw moment
-    '''
-    slope = 0
-    start_x_m = all_points[0][1]
-    start_y_m = line_3_y
-    for i in range(len(all_points)):
-    '''
+    moment_points_final = drawing_calculator.D_Calculator.moment_creator(organized_vertices, line_2_y, line_3_y)
+    moment_points_final = [sublist for sublist in moment_points_final if sublist]
+    print(f"Moment_points_final: {moment_points_final}")
+
+    for shape in moment_points_final:
+        print(f"Shape: {shape}")
+        for i in range(len(shape[0])):
+
+            x_moment = shape[0][i]
+            y_moment = (shape[1][i]/(unit_2*5000)) + line_3_y
+            pygame.draw.line(screen, (0, 100, 100), (x_moment, y_moment), (x_moment, y_moment - 3), 3)
+
+        
 
     # Write titles
     font_t = pygame.font.Font(None, 35)
@@ -355,7 +371,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
 
     # Write V max
     font_e = pygame.font.Font(None, 25)
-    text_surface = font_e.render("V max: " + v_max + " " + weight_unit + "-" + length_unit, True, (0, 0, 0))
+    text_surface = font_e.render("V max: " + str(v_max) + " " + weight_unit + "-" + length_unit, True, (0, 0, 0))
     text_rect = text_surface.get_rect(center=((screen_width - (screen_width - line_length) / 4), line_2_y))
     screen.blit(text_surface, text_rect)
 
