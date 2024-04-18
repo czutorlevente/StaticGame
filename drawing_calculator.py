@@ -40,7 +40,7 @@ class D_Calculator:
         return (cx, cy)
     
     # Calculate sub areas and slope for the creation of the moment diagram:
-    def moment_creator(vertices, line_2_y, line_3_y):
+    def moment_creator(vertices, line_2_y):
         final_moment_points = []
         last_moment = 0
         for i in range(len(vertices)):

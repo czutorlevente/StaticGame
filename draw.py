@@ -333,24 +333,36 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
                 v_max = "±" + str(positive_V_max)
         
         # Calculate centroid and display area of shape there:
-        center_location = drawing_calculator.D_Calculator.polygon_centroid(polygon)
-        center_x = center_location[0]
-        center_y = center_location[1]
-        text_surface_load = font_dist.render("Area: " + (str(area)), True, (0, 180, 0))
-        text_rect_load = text_surface_load.get_rect(center=(center_x, center_y))
-        screen.blit(text_surface_load, text_rect_load)
+        if area != 0:
+            center_location = drawing_calculator.D_Calculator.polygon_centroid(polygon)
+            center_x = center_location[0]
+            center_y = center_location[1]
+            text_surface_load = font_dist.render("Area: " + (str(area)), True, (0, 180, 0))
+            text_rect_load = text_surface_load.get_rect(center=(center_x, center_y))
+            screen.blit(text_surface_load, text_rect_load)
 
     # Draw moment
-    moment_points_final = drawing_calculator.D_Calculator.moment_creator(organized_vertices, line_2_y, line_3_y)
+    moment_points_final = drawing_calculator.D_Calculator.moment_creator(organized_vertices, line_2_y)
     moment_points_final = [sublist for sublist in moment_points_final if sublist]
-    print(f"Moment_points_final: {moment_points_final}")
+    moment_unit = 1
+    largest_absolute_value = 0
+    for shape in moment_points_final:
+        # Set up scale 
+        larger_absolute_value = max(shape[1], key=abs)
+        if abs(larger_absolute_value) > largest_absolute_value:
+            largest_absolute_value = larger_absolute_value
+
+        print(f"Largest absolute value: {largest_absolute_value}")
+        max_height = screen_height / 8.5 
+        moment_unit = (max_height / largest_absolute_value)
 
     for shape in moment_points_final:
-        print(f"Shape: {shape}")
+        
+
         for i in range(len(shape[0])):
 
             x_moment = shape[0][i]
-            y_moment = (shape[1][i]/(unit_2*5000)) + line_3_y
+            y_moment = (shape[1][i] * moment_unit) + line_3_y
             pygame.draw.line(screen, (0, 100, 100), (x_moment, y_moment), (x_moment, y_moment - 3), 3)
 
         
