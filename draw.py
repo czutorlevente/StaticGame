@@ -282,7 +282,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
     positive_V_max = 0
     negative_v_max = 0
     m_max = 0
-    unit_3 = 0 # verticale scale for moment diagram
+    all_area = 0
 
     # Calculate polygon areas:
     for polygon in polygons:
@@ -290,8 +290,17 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
         area = round(area / (unit_1 * unit_2), 2)
 
         #Calculate M max
-        if area > m_max:
-            m_max = area
+        m_area = area
+        for point in polygon:
+            x, y = point
+            if y > line_2_y:
+                m_area = -m_area
+                break  
+        all_area += m_area
+        if abs(all_area) > abs(m_max):
+            m_max = all_area
+            print(f"All area: {all_area}")   
+
 
         for point in polygon:
             x = point[0]
@@ -322,13 +331,8 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
                 if v_max < abs(negative_v_max):
                     v_max = negative_v_max
 
-                    # Vertical scale for moment setup:
-                    unit_3 = (screen_height/7.5) / m_max
-
                     v_max = str(negative_v_max)
             else:
-                # Vertical scale for moment setup:
-                unit_3 = (screen_height/7.5) / m_max
 
                 v_max = "±" + str(positive_V_max)
         
@@ -350,7 +354,7 @@ def draw_screen(W, AB, FA, FB, AL, PL, DL, message, weight_unit, length_unit):
         # Set up scale 
         larger_absolute_value = max(shape[1], key=abs)
         if abs(larger_absolute_value) > largest_absolute_value:
-            largest_absolute_value = larger_absolute_value
+            largest_absolute_value = abs(larger_absolute_value)
 
         print(f"Largest absolute value: {largest_absolute_value}")
         max_height = screen_height / 8.5 

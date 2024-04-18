@@ -45,22 +45,19 @@ class Calculator:
                     negative_distance = abs(point_load.distance)
 
 
-        if ab_distance > full_width:
-            full_width = ab_distance
+        if ab_distance > positive_distance:
+            positive_distance = ab_distance
 
         positive_d_d = 0
         negative_d_d = 0
 
         for distributed_load in distributed_loads:
             dist_distance = distributed_load.distance + distributed_load.width
-            if distributed_load.distance > 0:
-                if dist_distance > positive_d_d:
-                    positive_d_d = dist_distance
-            elif distributed_load.distance < 0:
-                if dist_distance > negative_d_d:
-                    negative_d_d = dist_distance
-            if distributed_load.distance + distributed_load.width > positive_d_d:
-                positive_d_d = distributed_load.distance + distributed_load.width
+            if dist_distance > positive_d_d:
+                positive_d_d = dist_distance
+            if distributed_load.distance < 0:
+                if abs(distributed_load.distance) > negative_d_d:
+                    negative_d_d = abs(distributed_load.distance)
         
         if positive_d_d > positive_distance:
             positive_distance = positive_d_d

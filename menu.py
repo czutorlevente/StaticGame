@@ -132,7 +132,7 @@ class Menu:
         entry_weight.pack()
             
         #Ask for distance
-        label3 = tk.Label(self.current_frame, text=f"Distance of closest end of Distributed {i+1} from pillar 'A':", font=("Helvetica", 14))
+        label3 = tk.Label(self.current_frame, text=f"Distance of left end of Distributed {i+1} from pillar 'A':", font=("Helvetica", 14))
         label3.pack()
         entry_distance = tk.Entry(self.current_frame, font=("Helvetica", 14))
         entry_distance.pack()
